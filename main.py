@@ -27,7 +27,7 @@ def read_root(request: Request):
             "index": index+1,
             "id": container.id,
             "name": container.name,
-            "state": container.state,
+            # "state": container.state,
             "status": container.status,
         })
 
