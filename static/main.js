@@ -15,11 +15,11 @@ for (const item in action_list) {
         var url = btn_action.getAttribute('data-url')
         url += '&command=' + exec_cmd.value
         
-        content.innerHTML = url + '\n';
+        content.innerHTML = '';
         
         fetch(url)
             .then(response => response.json())
-            .then(data => {content.innerHTML += data.message});
+            .then(data => {content.innerHTML = url + '\n' + data.message});
         //  .then(response => response.text())
         //  .then(data => {content.innerHTML += data});
     })
