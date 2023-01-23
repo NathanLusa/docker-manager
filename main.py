@@ -16,7 +16,10 @@ templates = Jinja2Templates(directory='templates')
 @app.get("/")
 def read_root(request: Request):
 
-    client = docker.from_env()
+    # client = docker.from_env()
+    client = docker.DockerClient(base_url='http://127.0.0.1:2375')
+    print(client)
+
     containers = client.containers.list(all=True)
 
     containers_result = []
