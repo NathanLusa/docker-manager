@@ -2,13 +2,9 @@ version: "3.11"
 
 services:
   web:
-    # env_file: ./time_control/.env
     build: .
-    # command: set -a; source time_control/.env; set +a
-    # command: python manage.py runserver 0.0.0.0:5123
     command: uvicorn main:app --host=0.0.0.0 --port=5910
     volumes:
       - .:/code
     ports:
       - "5910:5910"
-      - "2375:2375"
