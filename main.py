@@ -1,4 +1,5 @@
 import docker 
+import os 
 
 from fastapi import FastAPI, Request, HTTPException
 from fastapi.staticfiles import StaticFiles
@@ -13,6 +14,15 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 
 templates = Jinja2Templates(directory='templates')
 
+def get_ports(container):
+    ports = []
+    list_ports = list(container.ports.keys())
+    for port_key in list_ports:
+        for port_obj in container.ports[port_key]:
+            ports.append(port_obj['HostPort'])
+
+    return ports
+
 @app.get("/")
 def read_root(request: Request):
 
@@ -26,8 +36,10 @@ def read_root(request: Request):
         containers_result.append({
             "index": index+1,
             "id": container.id,
+            "ip": os.environ.get('EXTERNAL_IP'),
             "name": container.name,
             "status": container.status,
+            "ports": get_ports(container),
         })
 
     return templates.TemplateResponse('index.html', {"request": request, "containers": containers_result})

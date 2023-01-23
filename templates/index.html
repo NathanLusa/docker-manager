@@ -14,16 +14,16 @@
     <div class="container">
     <h1>Docker dashboard</h1>
 
-    <input id="exec-cmd" class="form-control form-control-sm" type="text" placeholder=".form-control-sm" aria-label=".form-control-sm example" value="Teste">
+    <input id="exec-cmd" class="form-control form-control-sm" type="text" placeholder=".form-control-sm" aria-label=".form-control-sm example" value="ls -l">
 
         <table class="table">
             <thead>
             <tr>
                 <th scope="col">#</th>
                 <th scope="col">Name</th>
-                <th scope="col">Actions</th>
-                <!-- <th scope="col">State</th> -->
+                <th scope="col">Ports</th>
                 <th scope="col">Status</th>
+                <th scope="col">Actions</th>
             </tr>
             </thead>
             <tbody>
@@ -31,14 +31,18 @@
                     <tr>
                     <th scope="row">{{ container.index }}</th>
                     <td>{{ container.name }}</td>
-                    <td>{{ container.state }}</td>
+                    <td> 
+                        {% for port in container.ports %}
+                        <a target="_blank" href="http://{{ container.ip }}:{{ port }}">{{ port }}</a>
+                        {% endfor %}
+                    </td>
                     <td>{{ container.status }}</td>
                     <td>
-                        <a class="btn btn-primary docker-event" href="#" data-url="/docker?name={{container.name}}&action=logs">Logs</a>
-                        <a class="btn btn-success docker-event" href="#" data-url="/docker?name={{container.name}}&action=start">Start</a>
-                        <a class="btn btn-danger docker-event" href="#" data-url="/docker?name={{container.name}}&action=stop">Stop</a>
-                        <a class="btn btn-warning docker-event" href="#" data-url="/docker?name={{container.name}}&action=restart">Restart</a>
-                        <a class="btn btn-dark docker-event" href="#" data-url="/docker?name={{container.name}}&action=exec">Exec</a>
+                        <a class="btn btn-primary btn-sm docker-event" href="#" data-url="/docker?name={{container.name}}&action=logs">Logs</a>
+                        <a class="btn btn-success btn-sm docker-event" href="#" data-url="/docker?name={{container.name}}&action=start">Start</a>
+                        <a class="btn btn-danger btn-sm docker-event" href="#" data-url="/docker?name={{container.name}}&action=stop">Stop</a>
+                        <a class="btn btn-warning btn-sm docker-event" href="#" data-url="/docker?name={{container.name}}&action=restart">Restart</a>
+                        <a class="btn btn-dark btn-sm docker-event" href="#" data-url="/docker?name={{container.name}}&action=exec">Exec</a>
                     </td>
                 </tr>
                 {% endfor %}
