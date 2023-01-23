@@ -27,23 +27,14 @@ def read_root(request: Request):
             "index": index+1,
             "id": container.id,
             "name": container.name,
-            # "state": container.state,
             "status": container.status,
         })
 
     return templates.TemplateResponse('index.html', {"request": request, "containers": containers_result})
-    # return {"containers": containers_result}
-
-
-# class DockerAction(BaseModel):
-#     name: str
-#     action: str
 
 
 @app.get("/docker/")
 async def docker_action(name: str = '', action: str = '', command: str = ''):
-    # name = docker_data.name
-    # action = docker_data.action
     message = 'success'
 
     try:
@@ -54,7 +45,7 @@ async def docker_action(name: str = '', action: str = '', command: str = ''):
         elif action == 'stop':
             container.stop()
         elif action == 'logs':
-            message = container.logs()
+            message = container.logs(tail=120)
         elif action == 'restart':
             message = container.restart()
         elif action == 'exec':
