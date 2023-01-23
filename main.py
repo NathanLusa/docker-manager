@@ -27,7 +27,8 @@ def read_root(request: Request):
             "index": index+1,
             "id": container.id,
             "name": container.name,
-            "logs": container.logs(),
+            "state": container.state,
+            "status": container.status,
         })
 
     return templates.TemplateResponse('index.html', {"request": request, "containers": containers_result})
