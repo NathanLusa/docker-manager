@@ -33,6 +33,7 @@ def read_root(request: Request):
     # print(client)
 
     containers = client.containers.list(all=True)
+    containers = sorted(containers, key=lambda x: x.name)
 
     containers_result = []
     for index, container in enumerate(containers):
