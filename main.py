@@ -16,10 +16,13 @@ templates = Jinja2Templates(directory='templates')
 
 def get_ports(container):
     ports = []
-    list_ports = list(container.ports.keys())
-    for port_key in list_ports:
-        for port_obj in container.ports[port_key]:
-            ports.append(port_obj['HostPort'])
+    try:
+        list_ports = list(container.ports.keys())
+        for port_key in list_ports:
+            for port_obj in container.ports[port_key]:
+                ports.append(port_obj['HostPort'])
+    except:
+        pass
 
     return ports
 
@@ -27,7 +30,7 @@ def get_ports(container):
 def read_root(request: Request):
 
     client = docker.from_env()
-    print(client)
+    # print(client)
 
     containers = client.containers.list(all=True)
 
@@ -57,7 +60,9 @@ async def docker_action(name: str = '', action: str = '', command: str = ''):
         elif action == 'stop':
             container.stop()
         elif action == 'logs':
-            message = container.logs(tail=120)
+            message = container.logs(tail=60, stream=True)
+            message = list(message)[::-1]
+            message = b''.join(message)
         elif action == 'restart':
             message = container.restart()
         elif action == 'exec':
@@ -67,6 +72,7 @@ async def docker_action(name: str = '', action: str = '', command: str = ''):
     except docker.errors.NotFound as e:
         raise HTTPException(status_code=404, detail='Container not found')
     except Exception as e:
+        print(e)
         raise HTTPException(status_code=500, detail='Error performing action')
 
     return {'message': message}

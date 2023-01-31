@@ -19,7 +19,7 @@ for (const item in action_list) {
         
         fetch(url)
             .then(response => response.json())
-            .then(data => {content.innerHTML = url + '\n' + data.message});
+            .then(data => {content.innerHTML = url + '\n------------------------------------------------------\n' + data.message});
         //  .then(response => response.text())
         //  .then(data => {content.innerHTML += data});
     })
