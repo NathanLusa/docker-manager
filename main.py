@@ -60,7 +60,7 @@ async def docker_action(name: str = '', action: str = '', command: str = ''):
         elif action == 'stop':
             container.stop()
         elif action == 'logs':
-            message = container.logs(tail=60, stream=True)
+            message = container.logs(tail=60, stream=True, follow=False)
             message = list(message)[::-1]
             message = b''.join(message)
         elif action == 'restart':
