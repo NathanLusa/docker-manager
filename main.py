@@ -27,7 +27,7 @@ def get_ports(container):
     return ports
 
 @app.get("/")
-def read_root(request: Request):
+def read_root(request: Request, sortstatus: str = '', sortports: str = '', sortindex: str = '', sortname: str = ''):
 
     client = docker.from_env()
     # print(client)
@@ -45,6 +45,18 @@ def read_root(request: Request):
             "status": container.status,
             "ports": get_ports(container),
         })
+
+    if sortindex != '':
+        containers_result = sorted(containers_result, key=lambda x: x["index"], reverse=(sortindex=='down'))
+
+    if sortname != '':
+        containers_result = sorted(containers_result, key=lambda x: x["name"], reverse=(sortname=='down'))
+
+    if sortstatus != '':
+        containers_result = sorted(containers_result, key=lambda x: x["status"], reverse=(sortstatus=='down'))
+
+    if sortports != '':
+        containers_result = sorted(containers_result, key=lambda x: x["ports"], reverse=(sortports=='down'))
 
     return templates.TemplateResponse('index.html', {"request": request, "containers": containers_result})
 
