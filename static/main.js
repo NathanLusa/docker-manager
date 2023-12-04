@@ -22,7 +22,7 @@ for (const item in action_list) {
                     content.innerHTML =
                         url +
                         "\n------------------------------------------------------\n" +
-                        data.message;
+                        data.detail;
                 });
             //  .then(response => response.text())
             //  .then(data => {content.innerHTML += data});

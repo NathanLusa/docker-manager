@@ -14,21 +14,7 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 
 templates = Jinja2Templates(directory='templates')
 
-def get_ports(container):
-    ports = []
-    try:
-        list_ports = list(container.ports.keys())
-        for port_key in list_ports:
-            for port_obj in container.ports[port_key]:
-                ports.append(port_obj['HostPort'])
-    except:
-        pass
-
-    return ports
-
-@app.get("/")
-def read_root(request: Request, sortstatus: str = '', sortports: str = '', sortindex: str = '', sortname: str = ''):
-
+def get_container_list() -> []:
     client = docker.from_env()
     # print(client)
 
@@ -45,20 +31,63 @@ def read_root(request: Request, sortstatus: str = '', sortports: str = '', sorti
             "status": container.status,
             "ports": get_ports(container),
         })
+    
+    return containers_result
+
+
+def get_image_list() -> []:
+    client = docker.from_env()
+    # print(client)
+
+    images = client.images.list(all=True)
+    # images = sorted(images, key=lambda x: x.name)
+
+    images_result = []
+    for index, image in enumerate(images):
+        images_result.append({
+            "index": index+1,
+            "id": image.id,
+            # "ip": os.environ.get('EXTERNAL_IP'),
+            "name": image.attrs['RepoTags'][0].split(':')[0],
+            "fullname": image.attrs['RepoTags'][0],
+            # "status": image.status,
+            # "ports": get_ports(image),
+        })
+    
+    return images_result
+
+
+def get_ports(container):
+    ports = []
+    try:
+        list_ports = list(container.ports.keys())
+        for port_key in list_ports:
+            for port_obj in container.ports[port_key]:
+                ports.append(port_obj['HostPort'])
+    except:
+        pass
+
+    return ports
+
+@app.get("/")
+def read_root(request: Request, sortstatus: str = '', sortports: str = '', sortindex: str = '', sortname: str = ''):
+
+    containers = get_container_list()
+    images = get_image_list()
 
     if sortindex != '':
-        containers_result = sorted(containers_result, key=lambda x: x["index"], reverse=(sortindex=='down'))
+        containers = sorted(containers, key=lambda x: x["index"], reverse=(sortindex=='down'))
 
     if sortname != '':
-        containers_result = sorted(containers_result, key=lambda x: x["name"], reverse=(sortname=='down'))
+        containers = sorted(containers, key=lambda x: x["name"], reverse=(sortname=='down'))
 
     if sortstatus != '':
-        containers_result = sorted(containers_result, key=lambda x: x["status"], reverse=(sortstatus=='down'))
+        containers = sorted(containers, key=lambda x: x["status"], reverse=(sortstatus=='down'))
 
     if sortports != '':
-        containers_result = sorted(containers_result, key=lambda x: x["ports"], reverse=(sortports=='down'))
+        containers = sorted(containers, key=lambda x: x["ports"], reverse=(sortports=='down'))
 
-    return templates.TemplateResponse('index.html', {"request": request, "containers": containers_result})
+    return templates.TemplateResponse('index.html', {"request": request, "containers": containers, "images": images})
 
 
 @app.get("/docker/")
@@ -78,6 +107,8 @@ async def docker_action(name: str = '', action: str = '', command: str = ''):
             message = b''.join(message)
         elif action == 'restart':
             message = container.restart()
+        elif action == 'remove':
+            message = container.remove()
         elif action == 'exec':
             message = container.exec_run(cmd=command.split(' '))
         else:
@@ -88,4 +119,25 @@ async def docker_action(name: str = '', action: str = '', command: str = ''):
         print(e)
         raise HTTPException(status_code=500, detail='Error performing action')
 
-    return {'message': message}
+    return {'detail': message}
+
+
+
+@app.get("/images/")
+async def image_action(name: str = '', action: str = ''):
+    message = 'success'
+
+    try:
+        client = docker.from_env()
+        # container = client.images.get(name)
+        if action == 'remove':
+            client.images.remove(name)
+        else:
+            raise HTTPException(status_code=400, detail='Invalid action')
+    except docker.errors.NotFound as e:
+        raise HTTPException(status_code=404, detail='Image not found')
+    except Exception as e:
+        print(e)
+        raise HTTPException(status_code=500, detail=f'Error performing action. \n{e}')
+
+    return {'detail': message}
