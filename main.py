@@ -48,8 +48,8 @@ def get_image_list() -> []:
             "index": index+1,
             "id": image.id,
             # "ip": os.environ.get('EXTERNAL_IP'),
-            "name": image.attrs['RepoTags'][0].split(':')[0],
-            "fullname": image.attrs['RepoTags'][0],
+            "name": image.attrs['RepoTags'][0].split(':')[0] if len(image.attrs['RepoTags']) > 0 else '',
+            "fullname": image.attrs['RepoTags'][0] if len(image.attrs['RepoTags']) > 0 else '',
             # "status": image.status,
             # "ports": get_ports(image),
         })
